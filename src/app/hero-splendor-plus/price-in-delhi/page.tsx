@@ -1,63 +1,152 @@
+"use client";
+
+import { Calendar, Check, IndianRupee, Loader2, MapPin, Star } from "lucide-react";
+import Image from "next/image";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { IndianRupee, MapPin, Calendar, Star } from "lucide-react";
+import { useVehicle } from "@/hooks/useVehicle";
 
 export default function HeroSplendorPlusPriceInDelhi() {
-  const priceVariants = [
-    { variant: "Hero Splendor Plus Standard", price: "₹74,990", onRoadPrice: "₹85,000" },
-    { variant: "Hero Splendor Plus Kick Start", price: "₹73,490", onRoadPrice: "₹83,500" },
-    { variant: "Hero Splendor Plus Self Start", price: "₹76,490", onRoadPrice: "₹86,500" },
-  ];
+  const { data: vehicle, isLoading, error } = useVehicle("hero-splendor");
 
-  const specifications = [
-    { label: "Engine", value: "97.2cc, Air-cooled, Single cylinder" },
-    { label: "Power", value: "8.02 bhp @ 8000 rpm" },
-    { label: "Torque", value: "8.05 Nm @ 6000 rpm" },
-    { label: "Mileage", value: "80-90 kmpl" },
-    { label: "Fuel Tank", value: "9.8 litres" },
-    { label: "Kerb Weight", value: "112 kg" },
-  ];
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+            <p className="mt-4 text-muted-foreground">Loading vehicle details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !vehicle) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Card className="max-w-md">
+            <CardHeader>
+              <CardTitle className="text-destructive">Error Loading Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">{error instanceof Error ? error.message : "Failed to load vehicle information. Please try again later."}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const variants = vehicle.variants;
+
+  // Get all unique features from all variants
+  const getAllUniqueFeatures = (variants: typeof vehicle.variants) => {
+    const allFeatures = variants.flatMap((v) => v.features);
+    return Array.from(new Set(allFeatures));
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-6xl space-y-8">
         {/* Header Section */}
         <div className="space-y-4 text-center">
-          <h1 className="font-bold text-4xl text-primary">Hero Splendor Plus Price in Delhi</h1>
+          <h1 className="font-bold text-4xl text-primary">{vehicle.modelName} Price in Delhi</h1>
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <MapPin className="h-5 w-5" />
             <span>Delhi, India</span>
             <Calendar className="ml-4 h-5 w-5" />
-            <span>Updated: November 2025</span>
+            <span>
+              Updated:{" "}
+              {new Intl.DateTimeFormat("en-IN", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+                timeZone: "Asia/Kolkata",
+              }).format(new Date(vehicle.updatedAt))}
+            </span>
           </div>
         </div>
 
+        {/* Hero Image Section */}
+        <Card className="overflow-hidden py-0">
+          <div className="relative h-[400px] w-full overflow-hidden rounded-md">
+            <Image src="/vehicles/hero-splendor.png" alt={vehicle.modelName} fill className="rounded-md object-contain p-8" priority />
+          </div>
+        </Card>
+
         {/* Price Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {priceVariants.map((variant, index) => (
-            <Card key={index} className="transition-shadow hover:shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <IndianRupee className="h-5 w-5" />
-                  {variant.variant}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">Ex-showroom Price:</span>
-                    <span className="font-semibold text-lg">{variant.price}</span>
+          {variants.map((variant, index) => {
+            console.log(variant);
+            const variantPrice = variant.prices?.delhi;
+
+            return (
+              <Card key={index} className="transition-shadow hover:shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <IndianRupee className="h-5 w-5" />
+                    {vehicle.modelName} {variant.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 space-y-4">
+                  <div className="flex-1">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm">Ex-showroom Price:</span>
+                        <span className="font-semibold text-lg">₹{variantPrice?.exShowroom.toLocaleString("en-IN")}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm">On-road Price (Est.):</span>
+                        <span className="font-bold text-primary text-xl">₹{variantPrice?.onRoadPrice.toLocaleString("en-IN")}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">On-road Price (Est.):</span>
-                    <span className="font-bold text-primary text-xl">{variant.onRoadPrice}</span>
-                  </div>
-                </div>
-                <Button className="w-full">Get Best Price</Button>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
+
+        {/* Features Comparison Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Features Comparison</CardTitle>
+            <CardDescription>Compare features across all {vehicle.modelName} variants</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="sticky left-0 z-10 bg-background p-4 text-left font-semibold">Feature</th>
+                    {variants.map((variant, index) => (
+                      <th key={index} className="min-w-[120px] p-4 text-center font-semibold">
+                        {variant.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {getAllUniqueFeatures(variants).map((feature, featureIndex) => (
+                    <tr key={featureIndex} className="border-b hover:bg-muted/50">
+                      <td className="sticky left-0 z-10 bg-background p-4 text-sm">{feature}</td>
+                      {variants.map((variant, variantIndex) => (
+                        <td key={variantIndex} className="p-4 text-center">
+                          {variant.features.includes(feature) ? <Check className="mx-auto h-5 w-5 text-green-600" /> : <span className="text-muted-foreground">—</span>}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Specifications */}
         <Card>
@@ -66,13 +155,15 @@ export default function HeroSplendorPlusPriceInDelhi() {
               <Star className="h-6 w-6" />
               Key Specifications
             </CardTitle>
-            <CardDescription>Technical details of Hero Splendor Plus</CardDescription>
+            <CardDescription>Technical details of {vehicle.modelName}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
-              {specifications.map((spec, index) => (
-                <div key={index} className="flex items-center justify-between border-border/50 border-b py-2">
-                  <span className="text-muted-foreground">{spec.label}:</span>
+              {specifications(vehicle).map((spec, index) => (
+                <div key={index} className="flex items-center justify-between border-b border-border/50 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">{spec.label}:</span>
+                  </div>
                   <span className="font-medium">{spec.value}</span>
                 </div>
               ))}
@@ -80,43 +171,30 @@ export default function HeroSplendorPlusPriceInDelhi() {
           </CardContent>
         </Card>
 
-        {/* Additional Info */}
+        {/* Stats Section */}
         <Card>
           <CardHeader>
-            <CardTitle>About Hero Splendor Plus</CardTitle>
+            <CardTitle>About {vehicle.modelName}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground leading-relaxed">
-              The Hero Splendor Plus is one of India&apos;s most popular commuter motorcycles, known for its exceptional fuel efficiency, reliability, and affordability. With its proven 97.2cc engine,
-              the Splendor Plus delivers excellent mileage of up to 90 kmpl, making it perfect for daily commuting.
-            </p>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-lg bg-muted/50 p-4 text-center">
-                <div className="font-bold text-2xl text-primary">90 kmpl</div>
+            <p className="text-muted-foreground leading-relaxed">{vehicle.about}</p>
+            <div className="grid gap-4 md:grid-cols-4">
+              <div className="flex flex-col justify-center rounded-lg bg-muted/50 p-4 text-center">
+                <div className="font-bold text-2xl text-primary">{vehicle.performance.mileage}</div>
                 <div className="text-muted-foreground text-sm">Mileage</div>
               </div>
-              <div className="rounded-lg bg-muted/50 p-4 text-center">
-                <div className="font-bold text-2xl text-primary">8.02 bhp</div>
+              <div className="flex flex-col justify-center rounded-lg bg-muted/50 p-4 text-center">
+                <div className="font-bold text-2xl text-primary">{vehicle.performance.power.split("@")[0].trim()}</div>
                 <div className="text-muted-foreground text-sm">Power</div>
               </div>
-              <div className="rounded-lg bg-muted/50 p-4 text-center">
-                <div className="font-bold text-2xl text-primary">112 kg</div>
-                <div className="text-muted-foreground text-sm">Weight</div>
+              <div className="flex flex-col justify-center rounded-lg bg-muted/50 p-4 text-center">
+                <div className="font-bold text-2xl text-primary">{variants.length}</div>
+                <div className="text-muted-foreground text-sm">Variants</div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* CTA Section */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="py-8 text-center">
-            <h3 className="mb-4 font-bold text-2xl">Interested in Hero Splendor Plus?</h3>
-            <p className="mb-6 text-muted-foreground">Get the best deals and offers from authorized Hero dealers in Delhi</p>
-            <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <Button size="lg">Find Dealers</Button>
-              <Button size="lg" variant="outline">
-                Book Test Ride
-              </Button>
+              <div className="flex flex-col justify-center rounded-lg bg-muted/50 p-4 text-center">
+                <div className="font-bold text-2xl text-primary">{vehicle.engine.displacement}</div>
+                <div className="text-muted-foreground text-sm">Engine</div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -124,3 +202,12 @@ export default function HeroSplendorPlusPriceInDelhi() {
     </div>
   );
 }
+
+const specifications = (vehicle: { engine: { displacement: string; type: string }; performance: { power: string; torque: string; mileage: string }; category: string }) => [
+  { label: "Engine", value: vehicle.engine.displacement },
+  { label: "Engine Type", value: vehicle.engine.type },
+  { label: "Power", value: vehicle.performance.power },
+  { label: "Torque", value: vehicle.performance.torque },
+  { label: "Mileage", value: vehicle.performance.mileage },
+  { label: "Category", value: vehicle.category.charAt(0).toUpperCase() + vehicle.category.slice(1) },
+];

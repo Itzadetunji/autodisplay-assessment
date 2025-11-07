@@ -1,91 +1,167 @@
+"use client";
+
+import { Calendar, Check, IndianRupee, Loader2, MapPin } from "lucide-react";
+import Image from "next/image";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { IndianRupee, MapPin, Calendar, Star, Car, Fuel, Users, Gauge } from "lucide-react";
+import { useVehicle } from "@/hooks/useVehicle";
+import type { VehicleDocument } from "@/types/vehicle";
 
 export default function HondaAmazePriceInKolkata() {
-  const priceVariants = [
-    { variant: "Honda Amaze E MT", price: "₹7,20,000", onRoadPrice: "₹8,15,000" },
-    { variant: "Honda Amaze S MT", price: "₹8,00,000", onRoadPrice: "₹9,05,000" },
-    { variant: "Honda Amaze VX MT", price: "₹9,00,000", onRoadPrice: "₹10,15,000" },
-    { variant: "Honda Amaze VX CVT", price: "₹9,70,000", onRoadPrice: "₹10,95,000" },
-  ];
+  const { data: vehicle, isLoading, error } = useVehicle("honda-amaze");
 
-  const specifications = [
-    { label: "Engine", value: "1.2L i-VTEC Petrol", icon: <Car className="h-4 w-4" /> },
-    { label: "Power", value: "89.5 bhp @ 6000 rpm", icon: <Gauge className="h-4 w-4" /> },
-    { label: "Torque", value: "110 Nm @ 4800 rpm", icon: <Gauge className="h-4 w-4" /> },
-    { label: "Mileage", value: "18.3 kmpl (MT) / 19.46 kmpl (CVT)", icon: <Fuel className="h-4 w-4" /> },
-    { label: "Fuel Tank", value: "35 litres", icon: <Fuel className="h-4 w-4" /> },
-    { label: "Seating", value: "5 persons", icon: <Users className="h-4 w-4" /> },
-  ];
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+            <p className="mt-4 text-muted-foreground">Loading vehicle details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const features = [
-    "Honda SENSING Suite",
-    "8-inch Touchscreen Infotainment",
-    "Wireless Phone Charging",
-    "Automatic Climate Control",
-    "LED Headlights & DRLs",
-    "6 Airbags",
-    "Honda Connect 2.0",
-    "Rear AC Vents",
-  ];
+  if (error || !vehicle) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Card className="max-w-md">
+            <CardHeader>
+              <CardTitle className="text-destructive">Error Loading Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">{error instanceof Error ? error.message : "Failed to load vehicle information. Please try again later."}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const variants = vehicle.variants;
+
+  // Get all unique features from all variants
+  const getAllUniqueFeatures = (variants: VehicleDocument["variants"]) => {
+    const allFeatures = variants.flatMap((v) => v.features);
+    return Array.from(new Set(allFeatures));
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-6xl space-y-8">
         {/* Header Section */}
         <div className="space-y-4 text-center">
-          <h1 className="font-bold text-4xl text-primary">Honda Amaze Price in Kolkata</h1>
+          <h1 className="font-bold text-4xl text-primary">{vehicle.modelName} Price in Kolkata</h1>
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <MapPin className="h-5 w-5" />
             <span>Kolkata, West Bengal</span>
             <Calendar className="ml-4 h-5 w-5" />
-            <span>Updated: November 2025</span>
+            <span>
+              Updated:{" "}
+              {new Intl.DateTimeFormat("en-IN", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+                timeZone: "Asia/Kolkata",
+              }).format(new Date(vehicle.updatedAt))}
+            </span>
           </div>
         </div>
 
+        {/* Hero Image Section */}
+        <Card className="overflow-hidden py-0">
+          <div className="relative h-[400px] w-full overflow-hidden rounded-md">
+            <Image src="/vehicles/honda-amaze.png" alt={vehicle.modelName} fill className="rounded-md object-contain p-8" priority />
+          </div>
+        </Card>
+
         {/* Price Cards */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {priceVariants.map((variant, index) => (
-            <Card key={index} className="transition-shadow hover:shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <IndianRupee className="h-5 w-5" />
-                  {variant.variant}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">Ex-showroom Price:</span>
-                    <span className="font-semibold text-lg">{variant.price}</span>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {variants.map((variant, index) => {
+            const variantPrice = variant.prices?.kolkata;
+
+            return (
+              <Card key={index} className="transition-shadow hover:shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <IndianRupee className="h-5 w-5" />
+                    {vehicle.modelName} {variant.name}
+                    {variant.transmission && <span className="text-muted-foreground text-sm">({variant.transmission})</span>}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 space-y-4">
+                  <div className="flex-1">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm">Ex-showroom Price:</span>
+                        <span className="font-semibold text-lg">₹{variantPrice?.exShowroom.toLocaleString("en-IN")}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm">On-road Price (Est.):</span>
+                        <span className="font-bold text-primary text-xl">₹{variantPrice?.onRoadPrice.toLocaleString("en-IN")}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">On-road Price (Est.):</span>
-                    <span className="font-bold text-primary text-xl">{variant.onRoadPrice}</span>
-                  </div>
-                </div>
-                <Button className="w-full">Get Best Quote</Button>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
+
+        {/* Features Comparison Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Features Comparison</CardTitle>
+            <CardDescription>Compare features across all Honda Amaze variants</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="sticky left-0 z-10 bg-background p-4 text-left font-semibold">Feature</th>
+                    {variants.map((variant, index) => (
+                      <th key={index} className="min-w-[120px] p-4 text-center font-semibold">
+                        {variant.name}
+                        <br />
+                        <span className="font-normal text-muted-foreground text-xs">({variant.transmission})</span>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {getAllUniqueFeatures(variants).map((feature, featureIndex) => (
+                    <tr key={featureIndex} className="border-b hover:bg-muted/50">
+                      <td className="sticky left-0 z-10 bg-background p-4 text-sm">{feature}</td>
+                      {variants.map((variant, variantIndex) => (
+                        <td key={variantIndex} className="p-4 text-center">
+                          {variant.features.includes(feature) ? <Check className="mx-auto h-5 w-5 text-green-600" /> : <span className="text-muted-foreground">—</span>}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Specifications */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Star className="h-6 w-6" />
-              Key Specifications
-            </CardTitle>
+            <CardTitle className="flex items-center gap-2">Key Specifications</CardTitle>
             <CardDescription>Technical details of Honda Amaze 2024</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
-              {specifications.map((spec, index) => (
+              {specifications(vehicle).map((spec, index) => (
                 <div key={index} className="flex items-center justify-between border-border/50 border-b py-3">
                   <div className="flex items-center gap-2">
-                    {spec.icon}
                     <span className="text-muted-foreground">{spec.label}:</span>
                   </div>
                   <span className="font-medium">{spec.value}</span>
@@ -95,91 +171,30 @@ export default function HondaAmazePriceInKolkata() {
           </CardContent>
         </Card>
 
-        {/* Features */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Key Features</CardTitle>
-            <CardDescription>Premium features available in Honda Amaze</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 rounded-lg bg-muted/50 p-3">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs">✓</div>
-                  <span className="text-sm">{feature}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Stats Section */}
         <Card>
           <CardHeader>
-            <CardTitle>About Honda Amaze</CardTitle>
+            <CardTitle>About {vehicle.modelName}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground leading-relaxed">
-              The Honda Amaze is a premium compact sedan that offers the perfect blend of style, comfort, and performance. With its spacious interiors, advanced safety features, and Honda&apos;s
-              legendary reliability, the Amaze stands out in the competitive sedan segment.
-            </p>
+            <p className="text-muted-foreground leading-relaxed">{vehicle.about}</p>
             <div className="grid gap-4 md:grid-cols-4">
-              <div className="rounded-lg bg-muted/50 p-4 text-center">
-                <div className="font-bold text-2xl text-primary">19.46</div>
-                <div className="text-muted-foreground text-sm">kmpl Mileage</div>
+              <div className="flex flex-col justify-center rounded-lg bg-muted/50 p-4 text-center">
+                <div className="font-bold text-2xl text-primary">{vehicle.performance.mileage}</div>
+                <div className="text-muted-foreground text-sm">Mileage</div>
               </div>
-              <div className="rounded-lg bg-muted/50 p-4 text-center">
-                <div className="font-bold text-2xl text-primary">89.5</div>
-                <div className="text-muted-foreground text-sm">bhp Power</div>
+              <div className="flex flex-col justify-center rounded-lg bg-muted/50 p-4 text-center">
+                <div className="font-bold text-2xl text-primary">{vehicle.performance.power.split("@")[0].trim()}</div>
+                <div className="text-muted-foreground text-sm">Power</div>
               </div>
-              <div className="rounded-lg bg-muted/50 p-4 text-center">
-                <div className="font-bold text-2xl text-primary">6</div>
-                <div className="text-muted-foreground text-sm">Airbags</div>
+              <div className="flex flex-col justify-center rounded-lg bg-muted/50 p-4 text-center">
+                <div className="font-bold text-2xl text-primary">{variants.length}</div>
+                <div className="text-muted-foreground text-sm">Variants</div>
               </div>
-              <div className="rounded-lg bg-muted/50 p-4 text-center">
-                <div className="font-bold text-2xl text-primary">420L</div>
-                <div className="text-muted-foreground text-sm">Boot Space</div>
+              <div className="flex flex-col justify-center rounded-lg bg-muted/50 p-4 text-center">
+                <div className="font-bold text-2xl text-primary">{vehicle.engine.displacement}</div>
+                <div className="text-muted-foreground text-sm">Engine</div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Kolkata Specific Info */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Honda Amaze in Kolkata
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              Kolkata, being a major metropolitan city, has excellent Honda service network with multiple dealerships across the city. The Honda Amaze is particularly popular among Kolkata customers
-              for its comfort and fuel efficiency in city traffic.
-            </p>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-lg border p-4">
-                <h4 className="font-semibold">Popular Areas</h4>
-                <p className="text-muted-foreground text-sm">Salt Lake, Park Street, Howrah, Jadavpur</p>
-              </div>
-              <div className="rounded-lg border p-4">
-                <h4 className="font-semibold">Service Centers</h4>
-                <p className="text-muted-foreground text-sm">15+ authorized service centers</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* CTA Section */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="py-8 text-center">
-            <h3 className="mb-4 font-bold text-2xl">Ready to Buy Honda Amaze?</h3>
-            <p className="mb-6 text-muted-foreground">Get the best deals and financing options from authorized Honda dealers in Kolkata</p>
-            <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <Button size="lg">Find Dealers in Kolkata</Button>
-              <Button size="lg" variant="outline">
-                Schedule Test Drive
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -187,3 +202,12 @@ export default function HondaAmazePriceInKolkata() {
     </div>
   );
 }
+
+const specifications = (vehicle: VehicleDocument) => [
+  { label: "Engine", value: vehicle.engine.displacement },
+  { label: "Engine Type", value: vehicle.engine.type },
+  { label: "Power", value: vehicle.performance.power },
+  { label: "Torque", value: vehicle.performance.torque },
+  { label: "Mileage", value: vehicle.performance.mileage },
+  { label: "Category", value: vehicle.category.charAt(0).toUpperCase() + vehicle.category.slice(1) },
+];
