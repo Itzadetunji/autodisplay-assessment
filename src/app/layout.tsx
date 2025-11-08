@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   keywords: ["car prices", "bike prices", "auto dealers", "on-road price", "India"],
   authors: [{ name: "AutoDisplay", url: "https://autodisplay-assessment.vercel.app/" }],
   openGraph: {
-    title: "AutoDisplay — local on-road prices",
+    title: "AutoDisplay, local on-road prices",
     description: "Find accurate on-road prices and specs for cars and bikes in Indian cities.",
     url: "https://autodisplay-assessment.vercel.app/",
     siteName: "AutoDisplay",
