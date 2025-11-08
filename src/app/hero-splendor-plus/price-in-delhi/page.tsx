@@ -53,22 +53,26 @@ export default function HeroSplendorPlusPriceInDelhi() {
         {/* Header Section */}
         <div className="space-y-4 text-center">
           <h1 className="font-bold text-4xl text-primary">{vehicle.modelName} Price in Delhi</h1>
-          <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <MapPin className="h-5 w-5" />
-            <span>Delhi, India</span>
-            <Calendar className="ml-4 h-5 w-5" />
-            <span>
-              Updated:{" "}
-              {new Intl.DateTimeFormat("en-IN", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-                timeZone: "Asia/Kolkata",
-              }).format(new Date(vehicle.updatedAt))}
-            </span>
+          <div className="flex flex-wrap items-center justify-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              <span>Delhi, India</span>{" "}
+            </div>{" "}
+            <div className="flex items-center gap-2">
+              <Calendar className="ml-4 h-5 w-5" />
+              <span>
+                Updated:{" "}
+                {new Intl.DateTimeFormat("en-IN", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                  timeZone: "Asia/Kolkata",
+                }).format(new Date(vehicle.updatedAt))}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -157,7 +161,7 @@ export default function HeroSplendorPlusPriceInDelhi() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
               {specifications(vehicle).map((spec, index) => (
-                <div key={index} className="flex items-center justify-between border-b border-border/50 py-3">
+                <div key={index} className="flex items-center justify-between border-border/50 border-b py-3">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">{spec.label}:</span>
                   </div>

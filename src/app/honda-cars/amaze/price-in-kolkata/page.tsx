@@ -55,22 +55,26 @@ export default function HondaAmazePriceInKolkata() {
           {/* Header Section */}
           <div className="space-y-4 text-center">
             <h1 className="font-bold text-4xl text-primary">{vehicle.modelName} Price in Kolkata</h1>
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <MapPin className="h-5 w-5" />
-              <span>Kolkata, West Bengal</span>
-              <Calendar className="ml-4 h-5 w-5" />
-              <span>
-                Updated:{" "}
-                {new Intl.DateTimeFormat("en-IN", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                  timeZone: "Asia/Kolkata",
-                }).format(new Date(vehicle?.updatedAt))}
-              </span>
+            <div className="flex flex-wrap items-center justify-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                <span>Kolkata, West Bengal</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="ml-4 h-5 w-5" />
+                <span>
+                  Updated:{" "}
+                  {new Intl.DateTimeFormat("en-IN", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                    timeZone: "Asia/Kolkata",
+                  }).format(new Date(vehicle?.updatedAt))}
+                </span>
+              </div>
             </div>
           </div>
 
