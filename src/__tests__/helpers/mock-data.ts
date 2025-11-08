@@ -1,6 +1,6 @@
 import type { VehicleDocument } from "@/types/vehicle";
 
-// Mock vehicle data factory
+// Mock vehicle data, we have the vehicle Document so that is the data type
 export const createMockVehicle = (overrides?: Partial<VehicleDocument>): VehicleDocument => ({
   _id: "mock-id",
   modelName: "Mock Vehicle",
