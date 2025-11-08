@@ -38,6 +38,20 @@ bun run test
 bun run test:coverage
 ```
 
+# References
+
+Honda Amaze
+
+- https://www.cardekho.com/honda/amaze/specs,
+- https://www.carandbike.com/honda-cars/2025-amaze
+
+Hero Splendor
+
+- https://www.bikedekho.com/hero/splendor-plus/price-in-delhi
+- https://www.bikewale.com/hero-bikes/super-splendor-xtec/specifications-features/
+- https://www.bikewale.com/hero-bikes/splendor-plus-xtec/specifications-features/
+- https://www.bikewale.com/hero-bikes/splendor-plus-i3s-2020/specifications-features/
+
 Pictures of the App
 
 Video of the App

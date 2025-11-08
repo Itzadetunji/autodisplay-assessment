@@ -34,7 +34,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   // Remember to get the maxPrice and minPrice using the math functions
-
   const minPrice = Math.min(...vehicle.variants.map((v) => v.prices?.kolkata?.exShowroom || 0));
   const maxPrice = Math.max(...vehicle.variants.map((v) => v.prices?.kolkata?.exShowroom || 0));
 
@@ -90,7 +89,8 @@ export default async function HondaAmazePriceInKolkata() {
   // Get all unique features from all variants
   const getAllUniqueFeatures = (variants: VehicleDocument["variants"]) => {
     const allFeatures = variants.flatMap((v) => v.features);
-    return Array.from(new Set(allFeatures));
+    // Order Aplhabetically
+    return Array.from(new Set(allFeatures)).sort((a, b) => a.localeCompare(b));
   };
 
   return (

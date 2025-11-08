@@ -84,10 +84,10 @@ export default async function HeroSplendorPlusPriceInDelhi() {
 
   const variants = vehicle.variants;
 
-  // Get all unique features from all variants
   const getAllUniqueFeatures = (variants: typeof vehicle.variants) => {
     const allFeatures = variants.flatMap((v) => v.features);
-    return Array.from(new Set(allFeatures));
+    // Order Aplhabetically
+    return Array.from(new Set(allFeatures)).sort((a, b) => a.localeCompare(b));
   };
 
   return (
