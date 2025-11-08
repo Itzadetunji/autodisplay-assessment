@@ -1,42 +1,85 @@
-"use client";
-
-import { Calendar, Check, IndianRupee, Loader2, MapPin, Star } from "lucide-react";
+import { Calendar, Check, IndianRupee, MapPin, Star } from "lucide-react";
 import Image from "next/image";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useVehicle } from "@/hooks/useVehicle";
+import { connectToDatabase } from "@/lib/mongodb";
+import VehicleModel from "@/models/Vehicle";
+import type { VehicleDocument } from "@/types/vehicle";
 
-export default function HeroSplendorPlusPriceInDelhi() {
-  const { data: vehicle, isLoading, error } = useVehicle("hero-splendor");
+async function getVehicleData(): Promise<VehicleDocument | null> {
+  try {
+    await connectToDatabase();
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
-            <p className="mt-4 text-muted-foreground">Loading vehicle details...</p>
-          </div>
-        </div>
-      </div>
-    );
+    const vehicle: VehicleDocument | null = await VehicleModel.findOne({
+      slug: "hero-splendor-plus",
+    }).lean();
+
+    return vehicle;
+  } catch (error) {
+    console.error("Error fetching Hero Splendor Plus:", error);
+    return null;
+  }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const vehicle = await getVehicleData();
+
+  if (!vehicle) {
+    return {
+      title: "Vehicle Not Found | AutoDisplay",
+      description: "The requested vehicle information could not be found.",
+    };
   }
 
-  if (error || !vehicle) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <Card className="max-w-md">
-            <CardHeader>
-              <CardTitle className="text-destructive">Error Loading Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{error?.response?.data.error ?? "Failed to load vehicle information. Please try again later."}</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+  // Remember to get the maxPrice and minPrice using the math functions
+  const minPrice = Math.min(...vehicle.variants.map((v) => v.prices?.delhi?.exShowroom || 0));
+  const maxPrice = Math.max(...vehicle.variants.map((v) => v.prices?.delhi?.exShowroom || 0));
+
+  return {
+    title: `${vehicle.modelName} Price in Delhi 2024 - ₹${minPrice.toLocaleString("en-IN")} to ₹${maxPrice.toLocaleString("en-IN")} | AutoDisplay`,
+    description: `${vehicle.modelName} price in Delhi starts from ₹${minPrice.toLocaleString("en-IN")} (ex-showroom). Check on-road price, variants, specifications, features and latest offers. ${vehicle.about.slice(0, 100)}...`,
+    keywords: [
+      `${vehicle.modelName} price`,
+      `${vehicle.modelName} Delhi price`,
+      `${vehicle.modelName} on-road price`,
+      `${vehicle.modelName} variants`,
+      `${vehicle.modelName} specifications`,
+      "motorcycle price Delhi",
+      "bike price Delhi",
+      "Hero motorcycle",
+    ],
+    openGraph: {
+      title: `${vehicle.modelName} Price in Delhi 2024 - Starting ₹${minPrice.toLocaleString("en-IN")}`,
+      description: `${vehicle.modelName} price in Delhi starts from ₹${minPrice.toLocaleString("en-IN")} (ex-showroom).`,
+      url: "https://autodisplay-assessment.vercel.app/hero-splendor-plus/price-in-delhi",
+      siteName: "AutoDisplay",
+      images: [
+        {
+          url: "https://autodisplay-assessment.vercel.app/vehicles/hero-splendor.png",
+          width: 1200,
+          height: 700,
+          alt: `${vehicle.modelName}`,
+        },
+      ],
+      locale: "en_US",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${vehicle.modelName} Price in Delhi - ₹${minPrice.toLocaleString("en-IN")}+`,
+      description: `Check ${vehicle.modelName} variants, specifications, and on-road prices in Delhi. ${vehicle.variants.length} variants available.`,
+      images: ["https://autodisplay-assessment.vercel.app/vehicles/hero-splendor.png"],
+    },
+  };
+}
+
+export default async function HeroSplendorPlusPriceInDelhi() {
+  const vehicle = await getVehicleData();
+
+  if (!vehicle) {
+    notFound();
   }
 
   const variants = vehicle.variants;

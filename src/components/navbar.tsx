@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { Car, Bike, Home, Menu, X } from "lucide-react";
+
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Car, Bike, Home, Menu, X } from "lucide-react";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 export default function Navbar() {
