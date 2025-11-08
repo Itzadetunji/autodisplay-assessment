@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 6010",
-    "build": "next build && bun run seed:db",
+    "build": "next build && bun run db:seed",
     "start": "next start",
     "preview": "next build && next start",
     "lint": "npx biome lint .",
@@ -13,7 +13,7 @@
     "check:write": "biome check --write .",
     "check:unsafe": "biome check --write --unsafe .",
     "shadcn:add": "npx shadcn@latest add",
-    "seed:db": "bun run scripts/seed-db.ts"
+    "db:seed": "bun run scripts/seed-db.ts"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.8",

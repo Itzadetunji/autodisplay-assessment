@@ -94,17 +94,15 @@ export default function HeroSplendorPlusPriceInDelhi() {
                     {vehicle.modelName} {variant.name}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="flex-1 space-y-4">
-                  <div className="flex-1">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">Ex-showroom Price:</span>
-                        <span className="font-semibold text-lg">₹{variantPrice?.exShowroom.toLocaleString("en-IN")}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">On-road Price (Est.):</span>
-                        <span className="font-bold text-primary text-xl">₹{variantPrice?.onRoadPrice.toLocaleString("en-IN")}</span>
-                      </div>
+                <CardContent className="flex flex-1 flex-col justify-end space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-sm">Ex-showroom Price:</span>
+                      <span className="font-semibold text-lg">₹{variantPrice?.exShowroom.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-sm">On-road Price (Est.):</span>
+                      <span className="font-bold text-primary text-xl">₹{variantPrice?.onRoadPrice.toLocaleString("en-IN")}</span>
                     </div>
                   </div>
                 </CardContent>
