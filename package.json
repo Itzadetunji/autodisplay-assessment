@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 6010",
-    "build": "next build",
+    "build": "next build && bun run seed:db",
     "start": "next start",
     "preview": "next build && next start",
     "lint": "npx biome lint .",

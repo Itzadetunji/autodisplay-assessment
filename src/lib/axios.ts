@@ -29,12 +29,6 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Handle common errors here
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage?.removeItem("auth_token");
-      // Redirect to login if needed
-    }
     return Promise.reject(error);
   }
 );

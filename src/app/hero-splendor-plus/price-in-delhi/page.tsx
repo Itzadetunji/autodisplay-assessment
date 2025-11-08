@@ -31,7 +31,7 @@ export default function HeroSplendorPlusPriceInDelhi() {
               <CardTitle className="text-destructive">Error Loading Data</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{error instanceof Error ? error.message : "Failed to load vehicle information. Please try again later."}</p>
+              <p className="text-muted-foreground">{error?.response?.data.error ?? "Failed to load vehicle information. Please try again later."}</p>
             </CardContent>
           </Card>
         </div>
@@ -72,17 +72,14 @@ export default function HeroSplendorPlusPriceInDelhi() {
           </div>
         </div>
 
-        {/* Hero Image Section */}
         <Card className="overflow-hidden py-0">
           <div className="relative h-[400px] w-full overflow-hidden rounded-md">
             <Image src="/vehicles/hero-splendor.png" alt={vehicle.modelName} fill className="rounded-md object-contain p-8" priority />
           </div>
         </Card>
 
-        {/* Price Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {variants.map((variant, index) => {
-            console.log(variant);
             const variantPrice = variant.prices?.delhi;
 
             return (

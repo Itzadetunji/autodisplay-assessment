@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import type { VehicleDocument } from "@/types/vehicle";
+import { AxiosError } from "axios";
 
 interface VehicleResponse {
   success: boolean;
@@ -9,18 +10,20 @@ interface VehicleResponse {
 }
 
 export function useVehicle(slug: string) {
-  return useQuery({
+  return useQuery<
+    VehicleDocument,
+    AxiosError<{
+      success: boolean;
+      error: string;
+    }>
+  >({
     queryKey: ["vehicle", slug],
     queryFn: async (): Promise<VehicleDocument> => {
       const response = await api.get<VehicleResponse>(`/${slug}`);
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || "Failed to fetch vehicle data");
-      }
-
       return response.data.data;
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000,
     retry: 2,
   });
 }
